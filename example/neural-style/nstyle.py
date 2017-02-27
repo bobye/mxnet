@@ -57,13 +57,16 @@ def get_args(arglist=None):
 def PreprocessContentImage(path, long_edge):
     img = io.imread(path)
     logging.info("load the content image, size = %s", img.shape[:2])
-    factor = float(long_edge) / max(img.shape[:2])
+    factor = min(1., float(long_edge) / max(img.shape[:2]))
     new_size = (int(img.shape[0] * factor), int(img.shape[1] * factor))
     resized_img = transform.resize(img, new_size)
     sample = np.asarray(resized_img) * 256
-    # swap axes to make image from (224, 224, 3) to (3, 224, 224)
-    sample = np.swapaxes(sample, 0, 2)
-    sample = np.swapaxes(sample, 1, 2)
+    if (len(sample.shape) == 2):
+        sample=np.reshape(sample, [1, sample.shape[0], sample.shape[1]])
+        sample=np.repeat(sample, 3, axis=0)
+    else:
+        # swap axes to make image from (224, 224, 3) to (3, 224, 224)    
+        sample = np.transpose(sample, [2, 0, 1])
     # sub mean
     sample[0, :] -= 123.68
     sample[1, :] -= 116.779
