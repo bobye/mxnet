@@ -22,9 +22,9 @@ def main():
     style, content = model_module.get_symbol()    
 
     # input
-    gpu=-1
+    gpu=1
     dev = mx.gpu(gpu) if gpu >= 0 else mx.cpu()
-    base='/Users/jxy198/Downloads/cubism_images/'
+    base='/backups4/jxy198/cubism_images/'
     painting_download_list=base + 'cubism_painting_download_list.txt'
     painting_path=base + 'cubism_paintings/'
     save_path=base + 'cubism_styles/'

@@ -25,7 +25,7 @@ def get_args(arglist=None):
                         help='stop if the relative chanage is less than eps')
     parser.add_argument('--content-weight', type=float, default=10,
                         help='the weight for the content image')
-    parser.add_argument('--style-weight', type=float, default=1,
+    parser.add_argument('--style-weight', type=float, default=100,
                         help='the weight for the style image')
     parser.add_argument('--tv-weight', type=float, default=1e-2,
                         help='the magtitute on TV loss')
@@ -107,9 +107,11 @@ def style_gram_symbol(input_size, style):
     _, output_shapes, _ = style.infer_shape(data=(1, 3, input_size[0], input_size[1]))
     gram_list = []
     grad_scale = []
+    value_scale = [45.0, 160.0, 150.0, 410.0, 38.0]
     for i in range(len(style.list_outputs())):
         shape = output_shapes[i]
         x = mx.sym.Reshape(style[i], target_shape=(int(shape[1]), int(np.prod(shape[2:]))))
+        x = - mx.sym.expm1(- x  / value_scale[i]) * value_scale[i]
         # use fully connected to quickly do dot(x, x^T)
         gram = mx.sym.FullyConnected(x, x, no_bias=True, num_hidden=shape[1])
         gram_list.append(gram)
